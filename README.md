@@ -1,3 +1,8 @@
+Simple Address Book
+========================
+This application is a simple address book that has basic CRUD functionality.
+run console/bin/ run serve to launch the application
+
 Symfony Standard Edition
 ========================
 
