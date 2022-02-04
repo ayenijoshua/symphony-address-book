@@ -2,6 +2,8 @@
 
 namespace AppBundle\Repository;
 
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
+
 /**
  * AddressBookRepository
  *
@@ -10,4 +12,33 @@ namespace AppBundle\Repository;
  */
 class AddressBookRepository extends \Doctrine\ORM\EntityRepository
 {
+
+    public function mailExists($email,$id){
+        $mySql = "
+                SELECT *
+                FROM address_book ad
+                WHERE ad.email = :email AND ad.id = :id
+                ";
+
+            $em = $this->getEntityManager();
+            
+            $rsm = new ResultSetMappingBuilder($em);
+            $queryParameters = array(
+                'email' => $email,
+                'id' => $id,
+            );
+
+            $query = $em->createNativeQuery($mySql, $rsm);
+            $query->setParameters($queryParameters);
+            return count($query->getResult())>0 ? true : false ;
+
+    }
+
+    public function deleteAddress($id)
+    {
+        $address = $this->find($id);
+        $em = $this->getEntityManager();
+        $em->remove($address);
+        $em->flush();
+    }
 }
