@@ -31,7 +31,7 @@ class AddressBookController extends Controller
      /**
      * @Route("/address/edit/{id}", name="edit")
      */
-    public function editAction(Request $request)
+    public function editAction($id, Request $request)
     {
         //('ji');
         // replace this example code with whatever you need
@@ -41,7 +41,7 @@ class AddressBookController extends Controller
      /**
      * @Route("/address/show/{id}", name="show")
      */
-    public function showAction(Request $request)
+    public function showAction($id)
     {
         //('ji');
         // replace this example code with whatever you need
@@ -51,7 +51,7 @@ class AddressBookController extends Controller
      /**
      * @Route("/address/delete/{id}", name="delete")
      */
-    public function deleteAction(Request $request)
+    public function deleteAction($id)
     {
         //('ji');
         // replace this example code with whatever you need

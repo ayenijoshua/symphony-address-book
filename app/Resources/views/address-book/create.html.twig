@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <form>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+            <label for="inputEmail4">First name</label><span class="text-danger">*</spam>
+            <input type="text" class="form-control" id="inputEmail4" placeholder="Email">
+            </div>
+            <div class="form-group col-md-6">
+            <label for="inputPassword4">Last name</label><span class="text-danger">*</spam>
+            <input type="text" class="form-control" id="inputPassword4" placeholder="Password">
+            </div>
+        </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputAddress">Street No.</label><span class="text-danger">*</spam>
+                    <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputAddress2">Zip</label><span class="text-danger">*</spam>
+                    <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
+                </div>
+            </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="inputCity">City</label><span class="text-danger">*</spam>
+                <input type="text" class="form-control" id="inputCity">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputState">Country</label><span class="text-danger">*</spam>
+                    <select id="inputState" class="form-control">
+                        <option selected>Choose...</option>
+                        <option>...</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                <label for="inputZip">Phone number</label><span class="text-danger">*</spam>
+                <input type="text" class="form-control" id="inputZip">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-4">
+            <label for="inputEmail4">Birthday</label><span class="text-danger">*</spam>
+            <input type="text" class="form-control" id="inputEmail4" placeholder="Email">
+            </div>
+            <div class="form-group col-md-4">
+            <label for="inputPassword4">Email address</label><span class="text-danger">*</spam>
+            <input type="text" class="form-control" id="inputPassword4" placeholder="Password">
+            </div>
+            <div class="form-group col-md-4">
+            <label for="inputPassword4">Picture</label>
+            <input type="file" class="form-control" id="inputPassword4" placeholder="Password">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+{% endblock %}
