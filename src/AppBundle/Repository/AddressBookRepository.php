@@ -34,7 +34,7 @@ class AddressBookRepository extends \Doctrine\ORM\EntityRepository
 
     }
 
-    public function updateAddress($addressBook)
+    public function persistAddress($addressBook)
     {
         $em = $this->getEntityManager();;
         $em->persist($addressBook);

@@ -62,7 +62,7 @@ class AddressBookController extends Controller
             }
             if($form->isValid()){
                 try {
-                    $em->getRepository('AppBundle:AddressBook')->updateAddress($addressBook);
+                    $em->getRepository('AppBundle:AddressBook')->persistAddress($addressBook);
                 } catch (\Exception $e) {
                     $loger->info($e->getMessage());
                     $this->addFlash('error','An error occured');
@@ -97,8 +97,6 @@ class AddressBookController extends Controller
         if($form->isSubmitted()){
             $data = $this->getData($form);
 
-            $this->setData($addressBook,$data);
-
             if($data['picture']){
                 try {
                     $originalFilename = pathinfo($data['picture']->getClientOriginalName(), PATHINFO_FILENAME);
@@ -113,11 +111,14 @@ class AddressBookController extends Controller
                     );
 
                     $data['picture'] = $newFilename;
+
                 } catch (\Exception $e) {
                     $loger->info($e->getMessage());
                     $this->addFlash('error','An error occured');
                 }  
             }
+
+            $this->setData($addressBook,$data);
 
             $em = $this->getDoctrine();
             $exists = $em->getRepository('AppBundle:AddressBook')->mailExists($data['email'],$id);
@@ -128,7 +129,7 @@ class AddressBookController extends Controller
             }
             if($form->isValid()){
                 try {
-                    $em->getRepository('AppBundle:AddressBook')->updateAddress($addressBook);
+                    $em->getRepository('AppBundle:AddressBook')->persistAddress($addressBook);
                 } catch (\Exception $e) {
                     $loger->info($e->getMessage());
                     $this->addFlash('error','An error occured');
@@ -205,7 +206,7 @@ class AddressBookController extends Controller
         ]);    
     }
 
-    private function setData(&$addressBook,$data){
+    private function setData(&$addressBook,&$data){
             $addressBook->setFirstname($data['firstname']);
             $addressBook->setLastname($data['lastname']);
             $addressBook->setEmail($data['email']);
