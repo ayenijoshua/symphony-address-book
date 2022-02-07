@@ -20,18 +20,25 @@ class AddressBookRepository extends \Doctrine\ORM\EntityRepository
                 WHERE ad.email = :email AND ad.id = :id
                 ";
 
-            $em = $this->getEntityManager();
-            
-            $rsm = new ResultSetMappingBuilder($em);
-            $queryParameters = array(
-                'email' => $email,
-                'id' => $id,
-            );
+        $em = $this->getEntityManager();
+        
+        $rsm = new ResultSetMappingBuilder($em);
+        $queryParameters = array(
+            'email' => $email,
+            'id' => $id,
+        );
 
-            $query = $em->createNativeQuery($mySql, $rsm);
-            $query->setParameters($queryParameters);
-            return count($query->getResult())>0 ? true : false ;
+        $query = $em->createNativeQuery($mySql, $rsm);
+        $query->setParameters($queryParameters);
+        return count($query->getResult())>0 ? true : false ;
 
+    }
+
+    public function updateAddress($addressBook)
+    {
+        $em = $this->getEntityManager();;
+        $em->persist($addressBook);
+        $em->flush();
     }
 
     public function deleteAddress($id)

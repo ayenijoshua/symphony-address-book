@@ -34,67 +34,35 @@ class AddressBookController extends Controller
     public function createAction(Request $request,LoggerInterface $loger)
     {
         $addressBook = new AddressBook();
-        $form = $this->createFormBuilder($addressBook)
-        ->add('firstname',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('lastname',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('email',EmailType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('birthday',DateType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('phone',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('zip',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('city',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('country',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('street_and_number',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('picture',FileType::class,['attr'=> ['class'=>'form-control'],'required'=>false])
-        ->add('Submit',SubmitType::class,['attr'=> ['class'=>'btn btn-primary mt-3']])
-        ->getForm();
+        $form = $this->buildForm($addressBook);
 
         $form->handleRequest($request);
         if($form->isSubmitted()){
-            $firstname = $form['firstname']->getData();
-            $lastname = $form['lastname']->getData();
-            $email = $form['email']->getData();
-            $phone = $form['phone']->getData();
-            $city = $form['city']->getData();
-            $zip = $form['zip']->getData();
-            $country = $form['country']->getData();
-            $street_and_number = $form['street_and_number']->getData();
-            $picture = $form['picture']->getData();
-            $birthday = $form['birthday']->getData();
+            $data = $this->getData($form);
 
-            if($picture){
-                $originalFilename = pathinfo($picture->getClientOriginalName(), PATHINFO_FILENAME);
-                $newFilename = $originalFilename.'-'.uniqid().'.'.$picture->guessExtension();
-                $picture->move(
+            if($data['picture']){
+                $originalFilename = pathinfo($data['picture']->getClientOriginalName(), PATHINFO_FILENAME);
+                $newFilename = $originalFilename.'-'.uniqid().'.'.$data['picture']->guessExtension();
+                $data['picture']->move(
                     $this->getParameter('pictures_directory'),
                     $newFilename
                 );
 
-                $picture = $newFilename;
+                $data['picture'] = $newFilename;
             }
 
-            $addressBook->setFirstname($firstname);
-            $addressBook->setLastname($lastname);
-            $addressBook->setEmail($email);
-            $addressBook->setPhone($phone);
-            $addressBook->setCity($city);
-            $addressBook->setZip($zip);
-            $addressBook->setCountry($country);
-            $addressBook->setStreetAndNumber($street_and_number);
-            $addressBook->setPicture($picture);
-            $addressBook->setBirthday($birthday);//'AppBundle:AddressBook'
+            $this->setData($addressBook,$data);
             
 
             $em = $this->getDoctrine();
-            $exists = $em->getRepository('AppBundle:AddressBook')->findOneBy(['email'=>$email]);
+            $exists = $em->getRepository('AppBundle:AddressBook')->findOneBy(['email'=>$data['email']]);
             if($exists){
                 $this->addFlash('error','Email alredy exists');
                 return $this->redirectToRoute('create');
             }
             if($form->isValid()){
                 try {
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($addressBook);
-                    $em->flush();
+                    $em->getRepository('AppBundle:AddressBook')->updateAddress($addressBook);
                 } catch (\Exception $e) {
                     $loger->info($e->getMessage());
                     $this->addFlash('error','An error occured');
@@ -123,47 +91,36 @@ class AddressBookController extends Controller
             $this->addFlash('error','Invalid Id passed');
             return $this->redirectToRoute('edit',['id'=>$id]);
         }
-        $form = $this->createFormBuilder($addressBook)
-        ->add('firstname',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('lastname',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('email',EmailType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('birthday',DateType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('phone',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('zip',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('city',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('country',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('street_and_number',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
-        ->add('picture',FileType::class,['attr'=> ['class'=>'form-control'],'required'=>false])
-        ->add('Submit',SubmitType::class,['attr'=> ['class'=>'btn btn-primary mt-3']])
-        ->getForm();
+        $form = $this->buildForm($addressBook,true);
 
         $form->handleRequest($request);
         if($form->isSubmitted()){
-            $firstname = $form['firstname']->getData();
-            $lastname = $form['lastname']->getData();
-            $email = $form['email']->getData();
-            $phone = $form['phone']->getData();
-            $city = $form['city']->getData();
-            $zip = $form['zip']->getData();
-            $country = $form['country']->getData();
-            $street_and_number = $form['street_and_number']->getData();
-            $picture = $form['picture']->getData();
-            $birthday = $form['birthday']->getData();
+            $data = $this->getData($form);
 
-            $addressBook->setFirstname($firstname);
-            $addressBook->setLastname($lastname);
-            $addressBook->setEmail($email);
-            $addressBook->setPhone($phone);
-            $addressBook->setCity($city);
-            $addressBook->setZip($zip);
-            $addressBook->setCountry($country);
-            $addressBook->setStreetAndNumber($street_and_number);
-            $addressBook->setPicture($picture);
-            $addressBook->setBirthday($birthday);//'AppBundle:AddressBook'
+            $this->setData($addressBook,$data);
 
-           
+            if($data['picture']){
+                try {
+                    $originalFilename = pathinfo($data['picture']->getClientOriginalName(), PATHINFO_FILENAME);
+                    $newFilename = $originalFilename.'-'.uniqid().'.'.$data['picture']->guessExtension();
+                    if(! unlink(new \Symfony\Component\HttpFoundation\File\File($this->getParameter('pictures_directory').'/'.$addressBook->getPicture()))){
+                        throw new \Exception('Unable to delete old picture');
+                    }
+                
+                    $data['picture']->move(
+                        $this->getParameter('pictures_directory'),
+                        $newFilename
+                    );
+
+                    $data['picture'] = $newFilename;
+                } catch (\Exception $e) {
+                    $loger->info($e->getMessage());
+                    $this->addFlash('error','An error occured');
+                }  
+            }
+
             $em = $this->getDoctrine();
-            $exists = $em->getRepository('AppBundle:AddressBook')->mailExists($email,$id);
+            $exists = $em->getRepository('AppBundle:AddressBook')->mailExists($data['email'],$id);
 
             if($exists){
                 $this->addFlash('error','Email alredy exists');
@@ -171,9 +128,7 @@ class AddressBookController extends Controller
             }
             if($form->isValid()){
                 try {
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($addressBook);
-                    $em->flush();
+                    $em->getRepository('AppBundle:AddressBook')->updateAddress($addressBook);
                 } catch (\Exception $e) {
                     $loger->info($e->getMessage());
                     $this->addFlash('error','An error occured');
@@ -199,5 +154,67 @@ class AddressBookController extends Controller
         $this->getDoctrine()->getRepository(AddressBook::class)->deleteAddress($id);
         $this->addFlash('notice','Address deleted successfully');
         return $this->redirectToRoute('address');
+    }
+
+    private function buildForm(&$model,$update=true)
+    {   
+        if($update){
+            if($model->getPicture()){
+                $model->setPicture(new \Symfony\Component\HttpFoundation\File\File($this->getParameter('pictures_directory').'/'.$model->getPicture()));
+            }
+        }
+       return $this->createFormBuilder($model)
+        ->add('firstname',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('lastname',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('email',EmailType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('birthday',DateType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('phone',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('zip',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('city',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('country',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('street_and_number',TextType::class,['attr'=> ['class'=>'form-control'],'required'=>true])
+        ->add('picture',FileType::class,['attr'=> ['class'=>'form-control'],'required'=>false])
+        ->add('Submit',SubmitType::class,['attr'=> ['class'=>'btn btn-primary mt-3']])
+        ->getForm();
+    }
+
+    private  function getData($form)
+    {
+        $firstname = $form['firstname']->getData();
+        $lastname = $form['lastname']->getData();
+        $email = $form['email']->getData();
+        $phone = $form['phone']->getData();
+        $city = $form['city']->getData();
+        $zip = $form['zip']->getData();
+        $country = $form['country']->getData();
+        $street_and_number = $form['street_and_number']->getData();
+        $picture = $form['picture']->getData();
+        $birthday = $form['birthday']->getData();
+
+       return compact([
+            'firstname',
+            'lastname',
+            'email',
+            'phone',
+            'city',
+            'zip' ,
+            'country',
+            'street_and_number',
+            'picture',
+            'birthday',
+        ]);    
+    }
+
+    private function setData(&$addressBook,$data){
+            $addressBook->setFirstname($data['firstname']);
+            $addressBook->setLastname($data['lastname']);
+            $addressBook->setEmail($data['email']);
+            $addressBook->setPhone($data['phone']);
+            $addressBook->setCity($data['city']);
+            $addressBook->setZip($data['zip']);
+            $addressBook->setCountry($data['country']);
+            $addressBook->setStreetAndNumber($data['street_and_number']);
+            $addressBook->setPicture($data['picture']);
+            $addressBook->setBirthday($data['birthday']);//'AppBundle:AddressBook'
     }
 }
